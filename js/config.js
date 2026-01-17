@@ -68,10 +68,11 @@ export const CONFIG = {
 
     // Marina Bay Sands Backdrop
     BACKDROP: {
-        WIDTH: 3000,
-        HEIGHT: 2000,
-        POSITION_Z: -2000,
-        OPACITY: 0.7
+        WIDTH: 4000,
+        HEIGHT: 2500,
+        POSITION_Z: -1800,
+        POSITION_Y: 100,
+        OPACITY: 0.85
     },
 
     // Performance Settings

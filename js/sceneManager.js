@@ -22,7 +22,7 @@ export class SceneManager {
     init() {
         // Create scene
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(CONFIG.SCENE.BACKGROUND_COLOR);
+        // Backdrop is now a CSS background, so Three.js scene is transparent
         this.scene.fog = new THREE.Fog(
             CONFIG.SCENE.FOG_COLOR,
             CONFIG.SCENE.FOG_NEAR,
@@ -43,15 +43,15 @@ export class SceneManager {
         // Create renderer
         this.renderer = new THREE.WebGLRenderer({
             antialias: true,
-            alpha: false,
+            alpha: true, // Enable transparency to show backdrop
             powerPreference: 'high-performance'
         });
+        this.renderer.setClearColor(0x000000, 0); // Fully transparent
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.container.appendChild(this.renderer.domElement);
 
-        // Add backdrop and lights
-        this.createBackdrop();
+        // Add lights (no backdrop plane needed - using CSS background)
         this.createLights();
 
         // Handle window resize
@@ -64,48 +64,77 @@ export class SceneManager {
      * Create Marina Bay Sands backdrop
      */
     createBackdrop() {
-        // Create a simple dark gradient backdrop
-        // In production, you would load an actual Marina Bay Sands image
         const backdropGeometry = new THREE.PlaneGeometry(
             CONFIG.BACKDROP.WIDTH,
             CONFIG.BACKDROP.HEIGHT
         );
 
-        // Create gradient texture
+        // Load actual Marina Bay Sands night skyline image
+        const textureLoader = new THREE.TextureLoader();
+        textureLoader.load(
+            '/images/backdrop.jpeg',
+            (texture) => {
+                // Success callback
+                const backdropMaterial = new THREE.MeshBasicMaterial({
+                    map: texture,
+                    transparent: false,
+                    side: THREE.DoubleSide,
+                    depthWrite: true
+                });
+
+                const backdrop = new THREE.Mesh(backdropGeometry, backdropMaterial);
+                backdrop.position.z = CONFIG.BACKDROP.POSITION_Z;
+                backdrop.position.y = CONFIG.BACKDROP.POSITION_Y;
+                this.scene.add(backdrop);
+
+                console.log('✅ Marina Bay Sands backdrop loaded successfully');
+                console.log('Backdrop position:', backdrop.position);
+                console.log('Camera position:', this.camera.position);
+                console.log('Texture loaded:', texture);
+            },
+            undefined,
+            (error) => {
+                // Error callback - fallback to gradient
+                console.warn('⚠️ Failed to load backdrop image, using fallback:', error);
+                this.createFallbackBackdrop(backdropGeometry);
+            }
+        );
+
+        // Add ambient stars
+        this.createStars();
+    }
+
+    /**
+     * Create fallback backdrop if image fails to load
+     */
+    createFallbackBackdrop(geometry) {
         const canvas = document.createElement('canvas');
         canvas.width = 512;
         canvas.height = 512;
         const ctx = canvas.getContext('2d');
 
-        // Night sky gradient
         const gradient = ctx.createLinearGradient(0, 0, 0, 512);
         gradient.addColorStop(0, '#000510');
         gradient.addColorStop(0.5, '#001530');
         gradient.addColorStop(1, '#000000');
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, 512, 512);
-
-        // Add city silhouette suggestion (simplified)
         ctx.fillStyle = '#000000';
         ctx.fillRect(0, 400, 512, 112);
 
-        // Create texture
         const texture = new THREE.CanvasTexture(canvas);
-
-        const backdropMaterial = new THREE.MeshBasicMaterial({
+        const material = new THREE.MeshBasicMaterial({
             map: texture,
             transparent: true,
             opacity: CONFIG.BACKDROP.OPACITY,
             side: THREE.DoubleSide
         });
 
-        const backdrop = new THREE.Mesh(backdropGeometry, backdropMaterial);
+        const backdrop = new THREE.Mesh(geometry, material);
         backdrop.position.z = CONFIG.BACKDROP.POSITION_Z;
-        backdrop.position.y = 0;
+        backdrop.position.y = CONFIG.BACKDROP.POSITION_Y;
         this.scene.add(backdrop);
-
-        // Add ambient stars
-        this.createStars();
+        console.log('✅ Fallback backdrop created');
     }
 
     /**

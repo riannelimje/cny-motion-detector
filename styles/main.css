@@ -7,8 +7,15 @@
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     overflow: hidden;
-    background: #000;
+    background: #000 url('../images/backdrop.jpeg') no-repeat center center;
+    background-size: 100% 100%;
+    background-attachment: fixed;
     color: #fff;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
 }
 
 /* Webcam - visible mirror view */

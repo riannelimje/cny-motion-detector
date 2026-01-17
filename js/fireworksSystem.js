@@ -75,6 +75,7 @@ export class FireworksSystem {
             particle.position.set(launchX, launchY, launchZ);
             particle.target.set(target.x, target.y, target.z);
             particle.color.setHex(target.color);
+            particle.targetZ = target.z; // Store for atmospheric perspective
             
             // Launch velocity
             const direction = particle.target.clone().sub(particle.position).normalize();
@@ -184,7 +185,11 @@ export class FireworksSystem {
             colors[i3 + 1] = particle.color.g;
             colors[i3 + 2] = particle.color.b;
 
-            sizes[index] = particle.size * particle.alpha;
+            // Apply atmospheric perspective - particles further back (negative z) are dimmer
+            const depthFactor = particle.targetZ ? Math.max(0.6, 1 - (Math.abs(particle.targetZ) / 50)) : 1;
+            const finalAlpha = particle.alpha * depthFactor;
+
+            sizes[index] = particle.size * finalAlpha;
 
             if (particle.isActive) activeCount++;
         });

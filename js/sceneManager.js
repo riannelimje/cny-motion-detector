@@ -37,8 +37,8 @@ export class SceneManager {
             CONFIG.SCENE.NEAR,
             CONFIG.SCENE.FAR
         );
-        this.camera.position.set(0, 200, 1000);
-        this.camera.lookAt(0, 200, 0);
+        this.camera.position.set(0, 400, 800);
+        this.camera.lookAt(0, 450, 0);
 
         // Create renderer
         this.renderer = new THREE.WebGLRenderer({

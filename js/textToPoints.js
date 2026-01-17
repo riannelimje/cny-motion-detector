@@ -57,7 +57,8 @@ export class TextToPoints {
                         const worldX = (x - this.canvas.width / 2) + 
                                       (charIndex - (characters.length - 1) / 2) * CONFIG.TEXT.SPACING_X;
                         const worldY = -(y - this.canvas.height / 2) + CONFIG.TEXT.POSITION_Y;
-                        const worldZ = CONFIG.TEXT.POSITION_Z;
+                        // Add z-depth variation for layering
+                        const worldZ = CONFIG.TEXT.POSITION_Z + (Math.random() - 0.5) * CONFIG.TEXT.Z_VARIATION;
                         
                         // Assign color (weighted towards gold, with some variety)
                         const colorRoll = Math.random();

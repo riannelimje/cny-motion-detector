@@ -26,8 +26,9 @@ export const CONFIG = {
         FONT_FAMILY: 'SimHei, "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif',
         SAMPLE_DENSITY: 0.3,          // Lower = more particles (0-1)
         SPACING_X: 250,               // Horizontal spacing between characters
-        POSITION_Y: 300,              // Height in 3D space
-        POSITION_Z: -1500             // Distance from camera
+        POSITION_Y: 500,              // Height in 3D space (raised to upper 40%)
+        POSITION_Z: 0,                // Base z-depth (particles vary around this)
+        Z_VARIATION: 30               // Random z-depth variation for layering
     },
 
     // Fireworks Animation
@@ -70,7 +71,7 @@ export const CONFIG = {
     BACKDROP: {
         WIDTH: 4000,
         HEIGHT: 2500,
-        POSITION_Z: -1800,
+        POSITION_Z: -100,             // Behind fireworks
         POSITION_Y: 100,
         OPACITY: 0.85
     },

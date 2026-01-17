@@ -83,29 +83,17 @@ export class GestureDetector {
      * Process MediaPipe hand tracking results
      */
     onResults(results) {
-        // Clear canvas for debug visualization
-        if (CONFIG.DEBUG.SHOW_GESTURE_CANVAS) {
-            this.canvasCtx.save();
-            this.canvasCtx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
-            this.canvasCtx.drawImage(results.image, 0, 0, this.canvasElement.width, this.canvasElement.height);
-        }
+        // Clear canvas
+        this.canvasCtx.save();
+        this.canvasCtx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
+        this.canvasCtx.drawImage(results.image, 0, 0, this.canvasElement.width, this.canvasElement.height);
 
         // Check if hand is detected
         if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
             const handLandmarks = results.multiHandLandmarks[0];
             
-            // Draw landmarks (debug)
-            if (CONFIG.DEBUG.SHOW_GESTURE_CANVAS) {
-                drawConnectors(this.canvasCtx, handLandmarks, HAND_CONNECTIONS, {
-                    color: '#FFD700',
-                    lineWidth: 3
-                });
-                drawLandmarks(this.canvasCtx, handLandmarks, {
-                    color: '#FF0000',
-                    lineWidth: 1,
-                    radius: 4
-                });
-            }
+            // Draw hand skeleton overlay
+            this.drawHandSkeleton(handLandmarks);
 
             // Detect gesture
             const extendedFingers = this.countExtendedFingers(handLandmarks);
@@ -135,9 +123,63 @@ export class GestureDetector {
             this.currentState = 'UNKNOWN';
         }
 
-        if (CONFIG.DEBUG.SHOW_GESTURE_CANVAS) {
-            this.canvasCtx.restore();
-        }
+        this.canvasCtx.restore();
+    }
+
+    /**
+     * Draw hand skeleton with landmarks and connections
+     */
+    drawHandSkeleton(landmarks) {
+        const ctx = this.canvasCtx;
+        const width = this.canvasElement.width;
+        const height = this.canvasElement.height;
+
+        // Define hand connections (MediaPipe standard connections)
+        const connections = [
+            // Thumb
+            [0, 1], [1, 2], [2, 3], [3, 4],
+            // Index finger
+            [0, 5], [5, 6], [6, 7], [7, 8],
+            // Middle finger
+            [0, 9], [9, 10], [10, 11], [11, 12],
+            // Ring finger
+            [0, 13], [13, 14], [14, 15], [15, 16],
+            // Pinky
+            [0, 17], [17, 18], [18, 19], [19, 20],
+            // Palm connections
+            [5, 9], [9, 13], [13, 17]
+        ];
+
+        // Draw connections (lines)
+        ctx.strokeStyle = '#00FFFF'; // Cyan
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+
+        connections.forEach(([start, end]) => {
+            const startLandmark = landmarks[start];
+            const endLandmark = landmarks[end];
+
+            const startX = startLandmark.x * width;
+            const startY = startLandmark.y * height;
+            const endX = endLandmark.x * width;
+            const endY = endLandmark.y * height;
+
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+        });
+
+        ctx.stroke();
+
+        // Draw landmarks (circles)
+        ctx.fillStyle = '#00FFFF'; // Cyan
+        landmarks.forEach((landmark) => {
+            const x = landmark.x * width;
+            const y = landmark.y * height;
+
+            ctx.beginPath();
+            ctx.arc(x, y, 4, 0, 2 * Math.PI);
+            ctx.fill();
+        });
     }
 
     /**

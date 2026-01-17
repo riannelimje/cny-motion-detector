@@ -86,7 +86,7 @@ class CNYFireworksApp {
         }
 
         console.log('🎆 LAUNCHING FIREWORKS!');
-        this.updateStatus('🎆 新年快乐! Happy New Year!');
+        this.updateStatus('🎆 新年快乐! Happy Chinese New Year!');
 
         // Add slight jitter for organic feel
         const jitteredPoints = this.textConverter.jitterPoints(this.targetPoints, 3);

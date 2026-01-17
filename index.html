@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CNY Fireworks - Hand Gesture Detector</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <!-- Webcam Video (hidden) -->
+    <video id="webcam" autoplay playsinline></video>
+    
+    <!-- Canvas for MediaPipe visualization (optional debug) -->
+    <canvas id="gesture-canvas"></canvas>
+    
+    <!-- Three.js Canvas Container -->
+    <div id="scene-container"></div>
+    
+    <!-- Status Overlay -->
+    <div id="status-overlay">
+        <div id="status-text">Initializing...</div>
+        <div id="gesture-hint">Make a fist, then open your palm to trigger fireworks! 🎆</div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loading-screen">
+        <div class="loader"></div>
+        <p>Loading MediaPipe & Three.js...</p>
+    </div>
+
+    <!-- Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.min.js"></script>
+
+    <!-- Application Modules -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

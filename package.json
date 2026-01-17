@@ -1,0 +1,27 @@
+{
+  "name": "cny-motion-detector",
+  "version": "1.0.0",
+  "description": "Chinese New Year gesture-triggered fireworks experience with MediaPipe and Three.js",
+  "main": "js/main.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "three.js",
+    "mediapipe",
+    "gesture-detection",
+    "fireworks",
+    "chinese-new-year",
+    "webgl",
+    "computer-vision"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^5.0.0"
+  },
+  "dependencies": {}
+}

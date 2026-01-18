@@ -58,6 +58,8 @@ class CNYFireworksApp {
             // Set up callbacks
             this.gestureDetector.onGestureTrigger = () => this.onGestureTrigger();
             this.gestureDetector.onStateChange = (state) => this.onGestureStateChange(state);
+            this.gestureDetector.onFingerCountChange = (scrollIndex) => this.onFingerCountChange(scrollIndex);
+            this.gestureDetector.onFistGesture = () => this.onFistGesture();
 
             const gestureReady = await this.gestureDetector.init();
 
@@ -170,6 +172,28 @@ class CNYFireworksApp {
     }
 
     /**
+     * Handle finger count change for scroll selection
+     * @param {number} scrollIndex - Index of scroll to select (0, 1, or 2)
+     */
+    onFingerCountChange(scrollIndex) {
+        // Only respond to finger count when scrolls are in selection mode
+        if (this.scrollManager.state === 'IDLE' || this.scrollManager.state === 'SELECTING') {
+            this.scrollManager.selectScroll(scrollIndex);
+        }
+    }
+
+    /**
+     * Handle fist gesture (used for confirming scroll selection)
+     */
+    onFistGesture() {
+        // Use fist gesture to confirm selection when in selecting mode
+        if (this.scrollManager.state === 'SELECTING') {
+            console.log('✊ Fist gesture → Confirming selection');
+            this.scrollManager.confirmSelection();
+        }
+    }
+
+    /**
      * Handle gesture state change
      */
     onGestureStateChange(state) {
@@ -221,7 +245,7 @@ class CNYFireworksApp {
                 this.fireworksLaunched = false;
                 
                 // Show selection instructions
-                this.updateStatus('🎋 Choose your fortune! Click a scroll or press 1/2/3, then SPACE to confirm');
+                this.updateStatus('🎋 Show 1-3 fingers to select, make a fist ✊ to confirm');
             }, CONFIG.SCROLL.DELAY_AFTER_FIREWORKS * 1000);
         }
 

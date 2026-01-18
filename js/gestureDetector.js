@@ -18,9 +18,17 @@ export class GestureDetector {
         this.previousState = 'UNKNOWN';
         this.lastTriggerTime = 0;
         
+        // Finger counting state
+        this.currentFingerCount = 0;
+        this.previousFingerCount = 0;
+        this.lastFingerCountChangeTime = 0;
+        this.fingerCountDebounceMs = 500; // Debounce time for finger count changes
+        
         // Callbacks
         this.onGestureTrigger = null;
         this.onStateChange = null;
+        this.onFingerCountChange = null; // New callback for finger count changes
+        this.onFistGesture = null; // Callback for fist gesture (can be used for confirmation)
         
         this.isReady = false;
     }
@@ -95,8 +103,13 @@ export class GestureDetector {
             // Draw hand skeleton overlay
             this.drawHandSkeleton(handLandmarks);
 
-            // Detect gesture
+            // Count extended fingers
             const extendedFingers = this.countExtendedFingers(handLandmarks);
+            
+            // Update finger count for scroll selection (1, 2, or 3 fingers)
+            this.updateFingerCount(extendedFingers);
+            
+            // Detect fist-to-open gesture for fireworks
             const newState = extendedFingers >= CONFIG.GESTURE.FIST_THRESHOLD ? 'OPEN' : 'FIST';
 
             // Update state
@@ -114,6 +127,13 @@ export class GestureDetector {
                     this.triggerGesture();
                 }
             }
+            
+            // Detect FIST gesture (can be used for confirmation)
+            if (this.currentState === 'FIST' && this.previousState !== 'FIST') {
+                if (this.onFistGesture) {
+                    this.onFistGesture();
+                }
+            }
 
             // Notify state change
             if (this.onStateChange && this.previousState !== this.currentState) {
@@ -121,9 +141,53 @@ export class GestureDetector {
             }
         } else {
             this.currentState = 'UNKNOWN';
+            this.currentFingerCount = 0;
         }
 
         this.canvasCtx.restore();
+    }
+
+    /**
+     * Update finger count and trigger selection callback if changed
+     * 
+     * FINGER COUNTING LOGIC:
+     * - Counts extended fingers using hand landmark analysis
+     * - Only recognizes 1, 2, or 3 fingers (ignores <1 or >3)
+     * - Maps finger count to scroll index:
+     *   * 1 finger → scrollIndex 0 (left scroll)
+     *   * 2 fingers → scrollIndex 1 (center scroll)
+     *   * 3 fingers → scrollIndex 2 (right scroll)
+     * - Applies 500ms debounce to prevent repeated triggers
+     * - Only triggers callback when finger count CHANGES
+     * 
+     * @param {number} fingerCount - Number of extended fingers (0-5)
+     */
+    updateFingerCount(fingerCount) {
+        // Only care about 1, 2, or 3 fingers for scroll selection
+        let validFingerCount = 0;
+        if (fingerCount >= 1 && fingerCount <= 3) {
+            validFingerCount = fingerCount;
+        }
+        
+        // Check if finger count changed
+        if (validFingerCount !== this.previousFingerCount) {
+            const now = Date.now();
+            const timeSinceLastChange = now - this.lastFingerCountChangeTime;
+            
+            // Apply debounce - only trigger if enough time has passed
+            if (timeSinceLastChange > this.fingerCountDebounceMs) {
+                this.previousFingerCount = validFingerCount;
+                this.currentFingerCount = validFingerCount;
+                this.lastFingerCountChangeTime = now;
+                
+                // Notify callback if finger count is valid (1, 2, or 3)
+                if (validFingerCount > 0 && this.onFingerCountChange) {
+                    const scrollIndex = validFingerCount - 1; // Convert 1,2,3 to 0,1,2
+                    console.log(`👆 ${validFingerCount} finger(s) detected → Scroll ${scrollIndex + 1}`);
+                    this.onFingerCountChange(scrollIndex);
+                }
+            }
+        }
     }
 
     /**

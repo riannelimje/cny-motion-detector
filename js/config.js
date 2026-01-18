@@ -76,6 +76,15 @@ export const CONFIG = {
         OPACITY: 0.85
     },
 
+    // Fortune Scroll Animation
+    SCROLL: {
+        UNROLL_DURATION: 2.0,         // Seconds for scroll to unroll
+        TEXT_FADE_DURATION: 1.0,      // Seconds for text to fade in
+        DISPLAY_DURATION: 4.0,        // Seconds to display before fade out
+        FADE_OUT_DURATION: 1.5,       // Seconds to fade out
+        DELAY_AFTER_FIREWORKS: 1.0    // Seconds to wait after fireworks end
+    },
+
     // Performance Settings
     PERFORMANCE: {
         MAX_PARTICLES: 10000,         // Total particle budget

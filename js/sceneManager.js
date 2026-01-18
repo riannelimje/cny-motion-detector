@@ -169,14 +169,23 @@ export class SceneManager {
      * Create lights
      */
     createLights() {
-        // Ambient light
-        const ambientLight = new THREE.AmbientLight(0x333333);
+        // Ambient light (increased for scroll visibility)
+        const ambientLight = new THREE.AmbientLight(0x666666);
         this.scene.add(ambientLight);
 
         // Directional light (moonlight)
         const moonLight = new THREE.DirectionalLight(0x9999FF, 0.3);
         moonLight.position.set(-100, 200, -100);
         this.scene.add(moonLight);
+
+        // Spotlight for scroll (warm light from above)
+        const scrollLight = new THREE.SpotLight(0xFFEECC, 1.5);
+        scrollLight.position.set(0, 800, 400);
+        scrollLight.angle = Math.PI / 6;
+        scrollLight.penumbra = 0.3;
+        scrollLight.decay = 2;
+        scrollLight.distance = 1000;
+        this.scene.add(scrollLight);
 
         // Point light for dramatic effect
         const pointLight = new THREE.PointLight(CONFIG.COLORS.GOLD, 0.5, 1000);

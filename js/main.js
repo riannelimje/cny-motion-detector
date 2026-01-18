@@ -8,16 +8,21 @@ import { GestureDetector } from './gestureDetector.js';
 import { TextToPoints } from './textToPoints.js';
 import { FireworksSystem } from './fireworksSystem.js';
 import { SceneManager } from './sceneManager.js';
+import { FortuneScroll } from './fortuneScroll.js';
 
 class CNYFireworksApp {
     constructor() {
         this.gestureDetector = null;
         this.textConverter = null;
         this.fireworksSystem = null;
+        this.fortuneScroll = null;
         this.sceneManager = null;
         
         this.targetPoints = null;
         this.isReady = false;
+        this.scrollDelayTimer = null;
+        this.scrollTriggered = false;
+        this.fireworksLaunched = false; // Track if fireworks have been triggered
         
         this.init();
     }
@@ -44,6 +49,9 @@ class CNYFireworksApp {
             // Initialize fireworks system
             this.updateStatus('Setting up fireworks system...');
             this.fireworksSystem = new FireworksSystem(this.sceneManager.getScene());
+
+            // Initialize fortune scroll system
+            this.fortuneScroll = new FortuneScroll(this.sceneManager.getScene());
 
             // Initialize gesture detector
             this.updateStatus('Initializing webcam & MediaPipe...');
@@ -93,6 +101,10 @@ class CNYFireworksApp {
 
         // Launch fireworks
         this.fireworksSystem.launch(jitteredPoints);
+        
+        // Mark that fireworks have been launched
+        this.fireworksLaunched = true;
+        this.scrollTriggered = false; // Reset for new sequence
 
         // Play sound effect (optional)
         // this.playFireworkSound();
@@ -138,6 +150,27 @@ class CNYFireworksApp {
 
         // Update fireworks
         this.fireworksSystem.update(deltaTime);
+
+        // Sequence: Only show scroll after fireworks have been launched and completed
+        // 1. User opens fist → fireworks launch (新年快乐)
+        // 2. After fireworks complete → scroll appears
+        if (this.fireworksLaunched &&
+            !this.fireworksSystem.isAnimating && 
+            !this.scrollTriggered &&
+            !this.fortuneScroll.isRunning() && 
+            !this.scrollDelayTimer) {
+            
+            this.scrollTriggered = true;
+            
+            // Delay scroll appearance after fireworks complete
+            this.scrollDelayTimer = setTimeout(() => {
+                this.fortuneScroll.show();
+                this.scrollDelayTimer = null;
+            }, CONFIG.SCROLL.DELAY_AFTER_FIREWORKS * 1000);
+        }
+
+        // Update fortune scroll
+        this.fortuneScroll.update(deltaTime);
 
         // Render scene
         this.sceneManager.render();

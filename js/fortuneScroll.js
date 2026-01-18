@@ -108,27 +108,16 @@ export class FortuneScroll {
         canvas.height = 1024;
         const ctx = canvas.getContext('2d');
 
-        // Gradient background (gold parchment)
-        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        gradient.addColorStop(0, '#F4E5C3');
-        gradient.addColorStop(0.5, '#E6D5A8');
-        gradient.addColorStop(1, '#D4C5A0');
+        // Gradient background (red/burgundy)
+        const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+        gradient.addColorStop(0, '#A0252A');    // Dark red
+        gradient.addColorStop(0.5, '#B8292F');  // Burgundy  
+        gradient.addColorStop(1, '#A0252A');    // Dark red
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Add texture pattern
-        ctx.fillStyle = 'rgba(139, 69, 19, 0.05)';
-        for (let i = 0; i < 50; i++) {
-            ctx.fillRect(
-                Math.random() * canvas.width,
-                Math.random() * canvas.height,
-                2,
-                Math.random() * 100
-            );
-        }
-
-        // Red decorative borders
-        ctx.strokeStyle = '#C41E3A';
+        // Gold decorative borders
+        ctx.strokeStyle = '#FFD700';
         ctx.lineWidth = 8;
         ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
 
@@ -146,8 +135,10 @@ export class FortuneScroll {
             transparent: true,
             opacity: 1,
             side: THREE.DoubleSide,
-            roughness: 0.9,
-            metalness: 0.1
+            roughness: 0.6,
+            metalness: 0.1,
+            emissive: 0x8B1820,
+            emissiveIntensity: 0.4
         });
 
         this.parchmentMesh = new THREE.Mesh(parchmentGeometry, parchmentMaterial);
@@ -173,21 +164,44 @@ export class FortuneScroll {
 
         // Main title: 上上签
         ctx.font = 'bold 120px SimHei, "Microsoft YaHei", "PingFang SC", sans-serif';
-        ctx.fillStyle = '#C41E3A';
+        ctx.fillStyle = '#FFD700';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText('上上签', canvas.width / 2, 150);
 
-        // Add gold outline to title
-        ctx.strokeStyle = '#FFD700';
-        ctx.lineWidth = 3;
-        ctx.strokeText('上上签', canvas.width / 2, 150);
-
-        // Subtitle: 这一年会惊喜连连
-        ctx.font = '48px SimHei, "Microsoft YaHei", "PingFang SC", sans-serif';
-        ctx.fillStyle = '#4A2511';
-        ctx.fillText('这一年会', canvas.width / 2, 300);
-        ctx.fillText('惊喜连连', canvas.width / 2, 370);
+        // Subtitle: 这一年会惊喜连连 (2 columns, 4 chars each)
+        ctx.font = 'bold 56px SimHei, "Microsoft YaHei", "PingFang SC", sans-serif';
+        ctx.fillStyle = '#FFD700';
+        ctx.textAlign = 'center';
+        
+        // Calculate center position for both columns
+        const columnSpacing = 70;
+        const charSpacing = 60;
+        
+        // Title ends around y=210 (150 + half of font size)
+        // Available space is from 210 to canvas bottom (1024)
+        const spaceTop = 210;
+        const spaceBottom = canvas.height;
+        const centerOfSpace = (spaceTop + spaceBottom) / 2;
+        
+        // Text group spans 180px (3 gaps of 60px between 4 chars)
+        // Center text group in available space
+        const textGroupHeight = charSpacing * 3;
+        const startY = centerOfSpace - (textGroupHeight / 2);
+        
+        // Right column: 这一年会
+        const rightX = canvas.width / 2 + columnSpacing;
+        ctx.fillText('这', rightX, startY);
+        ctx.fillText('一', rightX, startY + charSpacing);
+        ctx.fillText('年', rightX, startY + charSpacing * 2);
+        ctx.fillText('会', rightX, startY + charSpacing * 3);
+        
+        // Left column: 惊喜连连
+        const leftX = canvas.width / 2 - columnSpacing;
+        ctx.fillText('惊', leftX, startY);
+        ctx.fillText('喜', leftX, startY + charSpacing);
+        ctx.fillText('连', leftX, startY + charSpacing * 2);
+        ctx.fillText('连', leftX, startY + charSpacing * 3);
 
         const texture = new THREE.CanvasTexture(canvas);
         

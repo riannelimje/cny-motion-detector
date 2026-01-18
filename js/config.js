@@ -39,7 +39,7 @@ export const CONFIG = {
         RISE_TIME: 1.5,               // Seconds to reach target
         EXPLOSION_SIZE: 50,           // Radius of explosion
         EXPLOSION_PARTICLES: 30,      // Particles per explosion point
-        FADE_TIME: 2.0,               // Seconds to fade after explosion
+        FADE_TIME: 1.0,               // Seconds to fade after explosion
         GRAVITY: 0.98,                // Gravity multiplier
         DRAG: 0.99,                   // Air resistance
         PARTICLE_SIZE: 4,             // Base particle size
@@ -82,7 +82,21 @@ export const CONFIG = {
         TEXT_FADE_DURATION: 1.0,      // Seconds for text to fade in
         DISPLAY_DURATION: 4.0,        // Seconds to display before fade out
         FADE_OUT_DURATION: 1.5,       // Seconds to fade out
-        DELAY_AFTER_FIREWORKS: 0.5    // Seconds to wait after fireworks end
+        DELAY_AFTER_FIREWORKS: 0.0,   // Seconds to wait after fireworks end
+        
+        // Multi-scroll selection
+        IDLE_PARCHMENT_SCALE: 0.05,   // Scale when rolled up
+        HOVER_SCALE: 1.05,            // Scale when hovering
+        HOVER_PULSE_SPEED: 2.0,       // Speed of pulse animation
+        SELECTION_PULSE_COUNT: 3,     // Number of confirmation pulses
+        SELECTION_PULSE_DURATION: 0.2,// Duration of each pulse
+        NON_SELECTED_FADE_DURATION: 1.0, // Fade time for non-selected scrolls
+        
+        POSITIONS: {
+            LEFT: { x: -350, y: 400, z: 200 },
+            CENTER: { x: 0, y: 400, z: 200 },
+            RIGHT: { x: 350, y: 400, z: 200 }
+        }
     },
 
     // Performance Settings

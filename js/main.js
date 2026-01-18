@@ -8,21 +8,19 @@ import { GestureDetector } from './gestureDetector.js';
 import { TextToPoints } from './textToPoints.js';
 import { FireworksSystem } from './fireworksSystem.js';
 import { SceneManager } from './sceneManager.js';
-import { FortuneScroll } from './fortuneScroll.js';
+import { ScrollManager } from './scrollManager.js';
 
 class CNYFireworksApp {
     constructor() {
         this.gestureDetector = null;
         this.textConverter = null;
         this.fireworksSystem = null;
-        this.fortuneScroll = null;
+        this.scrollManager = null;
         this.sceneManager = null;
         
         this.targetPoints = null;
         this.isReady = false;
-        this.scrollDelayTimer = null;
-        this.scrollTriggered = false;
-        this.fireworksLaunched = false; // Track if fireworks have been triggered
+        this.fireworksLaunched = false;
         
         this.init();
     }
@@ -50,8 +48,8 @@ class CNYFireworksApp {
             this.updateStatus('Setting up fireworks system...');
             this.fireworksSystem = new FireworksSystem(this.sceneManager.getScene());
 
-            // Initialize fortune scroll system
-            this.fortuneScroll = new FortuneScroll(this.sceneManager.getScene());
+            // Initialize scroll manager system
+            this.scrollManager = new ScrollManager(this.sceneManager.getScene());
 
             // Initialize gesture detector
             this.updateStatus('Initializing webcam & MediaPipe...');
@@ -67,6 +65,9 @@ class CNYFireworksApp {
                 throw new Error('Failed to initialize gesture detector');
             }
 
+            // Set up keyboard controls for testing
+            this.setupKeyboardControls();
+
             // Start animation loop
             this.animate();
 
@@ -74,13 +75,71 @@ class CNYFireworksApp {
             this.hideLoadingScreen();
             this.isReady = true;
 
-            this.updateStatus('✅ Ready! Make a fist then open your palm');
+            this.updateStatus('✅ Ready! Make a fist then open your palm to start');
             
             console.log('✅ CNY Fireworks Experience ready!');
         } catch (error) {
             console.error('❌ Initialization failed:', error);
             this.updateStatus(`Error: ${error.message}`);
         }
+    }
+
+    /**
+     * Set up keyboard controls for scroll selection
+     */
+    setupKeyboardControls() {
+        // Keyboard controls
+        document.addEventListener('keydown', (event) => {
+            // Number keys 1, 2, 3 to select scrolls
+            if (event.key === '1') {
+                this.scrollManager.selectScroll(0);
+            } else if (event.key === '2') {
+                this.scrollManager.selectScroll(1);
+            } else if (event.key === '3') {
+                this.scrollManager.selectScroll(2);
+            }
+            // Space to confirm selection
+            else if (event.key === ' ') {
+                event.preventDefault();
+                this.scrollManager.confirmSelection();
+            }
+            // R to reset
+            else if (event.key === 'r' || event.key === 'R') {
+                this.scrollManager.reset();
+            }
+        });
+
+        // Mouse click controls
+        const canvas = document.querySelector('canvas');
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        canvas.addEventListener('click', (event) => {
+            // Calculate mouse position in normalized device coordinates (-1 to +1)
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+            // Update raycaster
+            raycaster.setFromCamera(mouse, this.sceneManager.getCamera());
+
+            // Check intersection with scrolls
+            const scrollIndex = this.scrollManager.getScrollAtPosition(raycaster);
+            
+            if (scrollIndex !== null) {
+                console.log(`🖱️ Clicked scroll ${scrollIndex + 1}`);
+                
+                // If clicking already selected scroll, confirm it
+                if (this.scrollManager.selectedScrollIndex === scrollIndex) {
+                    this.scrollManager.confirmSelection();
+                } else {
+                    // Otherwise, select it
+                    this.scrollManager.selectScroll(scrollIndex);
+                }
+            }
+        });
+
+        console.log('⌨️  Controls enabled: Click scrolls or press 1/2/3 to select, SPACE to confirm, R to reset');
     }
 
     /**
@@ -94,6 +153,7 @@ class CNYFireworksApp {
         }
 
         console.log('🎆 LAUNCHING FIREWORKS!');
+        console.log('🎆 LAUNCHING FIREWORKS!');
         this.updateStatus('🎆 新年快乐! Happy Chinese New Year!');
 
         // Add slight jitter for organic feel
@@ -104,7 +164,6 @@ class CNYFireworksApp {
         
         // Mark that fireworks have been launched
         this.fireworksLaunched = true;
-        this.scrollTriggered = false; // Reset for new sequence
 
         // Play sound effect (optional)
         // this.playFireworkSound();
@@ -151,26 +210,23 @@ class CNYFireworksApp {
         // Update fireworks
         this.fireworksSystem.update(deltaTime);
 
-        // Sequence: Only show scroll after fireworks have been launched and completed
-        // 1. User opens fist → fireworks launch (新年快乐)
-        // 2. After fireworks complete → scroll appears
-        if (this.fireworksLaunched &&
+        // Sequence: After fireworks complete, show three scrolls for selection
+        if (this.fireworksLaunched && 
             !this.fireworksSystem.isAnimating && 
-            !this.scrollTriggered &&
-            !this.fortuneScroll.isRunning() && 
-            !this.scrollDelayTimer) {
+            this.scrollManager.scrolls.length === 0) {
             
-            this.scrollTriggered = true;
-            
-            // Delay scroll appearance after fireworks complete
-            this.scrollDelayTimer = setTimeout(() => {
-                this.fortuneScroll.show();
-                this.scrollDelayTimer = null;
+            // Initialize three scrolls after fireworks complete
+            setTimeout(() => {
+                this.scrollManager.initialize();
+                this.fireworksLaunched = false;
+                
+                // Show selection instructions
+                this.updateStatus('🎋 Choose your fortune! Click a scroll or press 1/2/3, then SPACE to confirm');
             }, CONFIG.SCROLL.DELAY_AFTER_FIREWORKS * 1000);
         }
 
-        // Update fortune scroll
-        this.fortuneScroll.update(deltaTime);
+        // Update scroll manager
+        this.scrollManager.update(deltaTime);
 
         // Render scene
         this.sceneManager.render();

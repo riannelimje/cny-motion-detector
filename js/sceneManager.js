@@ -228,6 +228,13 @@ export class SceneManager {
     }
 
     /**
+     * Get camera for raycasting
+     */
+    getCamera() {
+        return this.camera;
+    }
+
+    /**
      * Cleanup
      */
     dispose() {

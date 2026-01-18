@@ -6,8 +6,11 @@
 import { CONFIG } from './config.js';
 
 export class FortuneScroll {
-    constructor(scene) {
+    constructor(scene, scrollIndex = 0, position = { x: 0, y: 400, z: 200 }, fortunePhrase = null) {
         this.scene = scene;
+        this.scrollIndex = scrollIndex;
+        this.position = position;
+        this.fortunePhrase = fortunePhrase;
         this.scrollGroup = null;
         this.parchmentMesh = null;
         this.textMesh = null;
@@ -17,44 +20,93 @@ export class FortuneScroll {
         // Animation states
         this.unrollProgress = 0;
         this.textFadeProgress = 0;
+        
+        // State machine
+        this.state = 'IDLE'; // IDLE, HOVERING, SELECTED, UNROLLING, DISPLAYED, FADING_OUT
+        this.isSelected = false;
+        this.hoverIntensity = 0;
+        this.selectionPulseTime = 0;
+        this.fadeProgress = 0;
     }
 
     /**
-     * Create and show the fortune scroll
+     * Set scroll to idle state (rolled up but visible)
      */
-    show() {
-        if (this.isAnimating) return;
+    setIdle() {
+        this.state = 'IDLE';
+        this.isAnimating = false;
         
-        this.isAnimating = true;
-        this.unrollProgress = 0;
-        this.textFadeProgress = 0;
-        
-        // Create scroll elements
-        this.createScroll();
-        
-        console.log('🎋 Fortune scroll animation started');
-    }
-
-    /**
-     * Create the scroll geometry and materials
-     */
-    createScroll() {
+        // Create scroll in rolled-up state
         this.scrollGroup = new THREE.Group();
         
-        // Create wooden rods (top and bottom)
         this.createWoodenRods();
-        
-        // Create parchment
         this.createParchment();
-        
-        // Create text texture
         this.createTextMesh();
         
         // Position scroll
-        this.scrollGroup.position.set(0, 400, 200);
-        this.scrollGroup.rotation.x = 0.1; // Slight tilt for depth
+        this.scrollGroup.position.set(this.position.x, this.position.y, this.position.z);
+        this.scrollGroup.rotation.x = 0.1;
+        
+        // Set rolled-up appearance
+        this.parchmentMesh.scale.y = CONFIG.SCROLL.IDLE_PARCHMENT_SCALE;
+        this.textMesh.material.opacity = 0;
+        
+        // Bottom rod at same position as top rod (rolled up)
+        this.bottomRod.position.y = 200;
         
         this.scene.add(this.scrollGroup);
+        
+        console.log(`🎋 Scroll ${this.scrollIndex + 1} set to IDLE state`);
+    }
+
+    /**
+     * Set hover state (visual feedback)
+     */
+    setHovering(isHovering) {
+        if (this.state !== 'IDLE' && this.state !== 'HOVERING') return;
+        
+        if (isHovering) {
+            this.state = 'HOVERING';
+            this.hoverIntensity = 1.0;
+        } else {
+            this.state = 'IDLE';
+            this.hoverIntensity = 0.0;
+        }
+    }
+
+    /**
+     * Mark as selected and trigger confirmation animation
+     */
+    setSelected() {
+        this.state = 'SELECTED';
+        this.isSelected = true;
+        this.selectionPulseTime = 0;
+        console.log(`🎋 Scroll ${this.scrollIndex + 1} SELECTED`);
+    }
+
+    /**
+     * Deselect and fade out
+     */
+    fadeAway() {
+        if (this.state === 'IDLE' || this.state === 'HOVERING') {
+            this.state = 'FADING_OUT';
+            this.fadeProgress = 0;
+            console.log(`🎋 Scroll ${this.scrollIndex + 1} fading away`);
+        }
+    }
+
+    /**
+     * Create and show the fortune scroll (start unroll animation)
+     */
+    show() {
+        if (this.isAnimating || this.state === 'UNROLLING') return;
+        
+        this.isAnimating = true;
+        this.state = 'UNROLLING';
+        this.unrollProgress = 0;
+        this.textFadeProgress = 0;
+        
+        console.log(`🎋 Scroll ${this.scrollIndex + 1} unrolling...`);
     }
 
     /**
@@ -183,9 +235,9 @@ export class FortuneScroll {
             "万事顺意，好运常驻"
         ];
 
-        // Randomly select a phrase
-        const selectedPhrase = fortunePhrases[Math.floor(Math.random() * fortunePhrases.length)];
-        console.log('🎋 Selected fortune:', selectedPhrase);
+        // Use provided fortune or random
+        const selectedPhrase = this.fortunePhrase || fortunePhrases[Math.floor(Math.random() * fortunePhrases.length)];
+        console.log(`🎋 Scroll ${this.scrollIndex + 1} fortune:`, selectedPhrase);
 
         // Split phrase into two columns (first 4 chars, last 4 chars)
         const rightColumn = selectedPhrase.substring(0, 4);  // Characters 0-3
@@ -243,7 +295,85 @@ export class FortuneScroll {
      * Update animation (called every frame)
      */
     update(deltaTime) {
-        if (!this.isAnimating || !this.scrollGroup) return;
+        if (!this.scrollGroup) return;
+
+        // Handle different states
+        switch (this.state) {
+            case 'IDLE':
+                // Static rolled-up scroll
+                break;
+
+            case 'HOVERING':
+                this.updateHoverState(deltaTime);
+                break;
+
+            case 'SELECTED':
+                this.updateSelectionPulse(deltaTime);
+                break;
+
+            case 'UNROLLING':
+                this.updateUnrollState(deltaTime);
+                break;
+
+            case 'DISPLAYED':
+                this.updateDisplayState(deltaTime);
+                break;
+
+            case 'FADING_OUT':
+                this.updateFadeOut(deltaTime);
+                break;
+        }
+    }
+
+    /**
+     * Update hover state (pulsing glow)
+     */
+    updateHoverState(deltaTime) {
+        const time = Date.now() * 0.001;
+        const glowIntensity = 0.5 + Math.sin(time * CONFIG.SCROLL.HOVER_PULSE_SPEED) * 0.3;
+        
+        if (this.parchmentMesh && this.parchmentMesh.material) {
+            this.parchmentMesh.material.emissiveIntensity = glowIntensity;
+        }
+        
+        // Slight scale pulse
+        const scale = 1.0 + Math.sin(time * CONFIG.SCROLL.HOVER_PULSE_SPEED) * 0.025;
+        this.scrollGroup.scale.set(scale, scale, scale);
+    }
+
+    /**
+     * Update selection confirmation pulse
+     */
+    updateSelectionPulse(deltaTime) {
+        this.selectionPulseTime += deltaTime;
+        
+        const pulseDuration = CONFIG.SCROLL.SELECTION_PULSE_DURATION;
+        const totalDuration = CONFIG.SCROLL.SELECTION_PULSE_COUNT * pulseDuration * 2;
+        
+        if (this.selectionPulseTime < totalDuration) {
+            // Pulse animation
+            const progress = (this.selectionPulseTime % (pulseDuration * 2)) / pulseDuration;
+            const scale = progress < 1 
+                ? 1.0 + (progress * 0.1)  // Scale up
+                : 1.1 - ((progress - 1) * 0.1); // Scale down
+            
+            this.scrollGroup.scale.set(scale, scale, scale);
+            
+            // Bright emissive pulse
+            if (this.parchmentMesh && this.parchmentMesh.material) {
+                this.parchmentMesh.material.emissiveIntensity = 1.0;
+            }
+        } else {
+            // Reset scale after pulses
+            this.scrollGroup.scale.set(1, 1, 1);
+        }
+    }
+
+    /**
+     * Update unroll animation
+     */
+    updateUnrollState(deltaTime) {
+        if (!this.isAnimating) return;
 
         // Phase 1: Unroll scroll (0-2 seconds)
         if (this.unrollProgress < 1) {
@@ -277,34 +407,69 @@ export class FortuneScroll {
             this.textMesh.scale.set(scale, scale, 1);
         }
 
-        // Add subtle floating animation after unroll
-        if (this.unrollProgress >= 1) {
-            const time = Date.now() * 0.001;
-            this.scrollGroup.position.y = 400 + Math.sin(time * 0.5) * 5;
-            this.scrollGroup.rotation.x = 0.1 + Math.sin(time * 0.3) * 0.02;
-        }
-
-        // Complete animation after both phases done
+        // Transition to DISPLAYED state
         if (this.unrollProgress >= 1 && this.textFadeProgress >= 1) {
-            // Keep showing for display duration
-            this.animationProgress += deltaTime;
-            
-            if (this.animationProgress > CONFIG.SCROLL.DISPLAY_DURATION) {
-                this.fadeOut(deltaTime);
-            }
+            this.state = 'DISPLAYED';
+            this.animationProgress = 0;
         }
     }
 
     /**
-     * Fade out and remove scroll
+     * Update display state (floating animation)
      */
-    fadeOut(deltaTime) {
+    updateDisplayState(deltaTime) {
+        // Add subtle floating animation
+        const time = Date.now() * 0.001;
+        this.scrollGroup.position.y = this.position.y + Math.sin(time * 0.5) * 5;
+        this.scrollGroup.rotation.x = 0.1 + Math.sin(time * 0.3) * 0.02;
+
+        // Count display time
+        this.animationProgress += deltaTime;
+        
+        if (this.animationProgress > CONFIG.SCROLL.DISPLAY_DURATION) {
+            this.fadeOutScroll(deltaTime);
+        }
+    }
+
+    /**
+     * Fade out displayed scroll
+     */
+    fadeOutScroll(deltaTime) {
         const fadeSpeed = deltaTime / CONFIG.SCROLL.FADE_OUT_DURATION;
         
-        this.parchmentMesh.material.opacity -= fadeSpeed;
-        this.textMesh.material.opacity -= fadeSpeed;
+        if (this.parchmentMesh && this.parchmentMesh.material) {
+            this.parchmentMesh.material.opacity -= fadeSpeed;
+        }
+        
+        if (this.textMesh && this.textMesh.material) {
+            this.textMesh.material.opacity -= fadeSpeed;
+        }
 
         if (this.parchmentMesh.material.opacity <= 0) {
+            this.isAnimating = false;
+            this.state = 'HIDDEN';
+        }
+    }
+
+    /**
+     * Fade out non-selected scroll
+     */
+    updateFadeOut(deltaTime) {
+        this.fadeProgress += deltaTime / CONFIG.SCROLL.NON_SELECTED_FADE_DURATION;
+        this.fadeProgress = Math.min(this.fadeProgress, 1);
+
+        const opacity = 1.0 - this.fadeProgress;
+        
+        if (this.parchmentMesh && this.parchmentMesh.material) {
+            this.parchmentMesh.material.opacity = opacity;
+        }
+        
+        // Move sideways slightly
+        const direction = this.scrollIndex === 0 ? -1 : (this.scrollIndex === 2 ? 1 : 0);
+        const offset = this.fadeProgress * 100 * direction;
+        this.scrollGroup.position.x = this.position.x + offset;
+
+        if (this.fadeProgress >= 1) {
             this.hide();
         }
     }
@@ -330,7 +495,8 @@ export class FortuneScroll {
         
         this.isAnimating = false;
         this.animationProgress = 0;
-        console.log('🎋 Fortune scroll animation complete');
+        this.state = 'HIDDEN';
+        console.log(`🎋 Scroll ${this.scrollIndex + 1} hidden`);
     }
 
     /**

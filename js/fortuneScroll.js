@@ -169,7 +169,29 @@ export class FortuneScroll {
         ctx.textBaseline = 'middle';
         ctx.fillText('上上签', canvas.width / 2, 150);
 
-        // Subtitle: 这一年会惊喜连连 (2 columns, 4 chars each)
+        // Random fortune phrases
+        const fortunePhrases = [
+            "锦鲤相伴，惊喜连连",
+            "好运爆棚，福气满格",
+            "闷声发财，喜事登门",
+            "惊喜开场，圆满收尾",
+            "心想事成，一路开挂",
+            "财运亨通，躺赢人生",
+            "笑口常开，横财就手",
+            "福星高照，欧气附体",
+            "盆满钵满，笑逐颜开",
+            "万事顺意，好运常驻"
+        ];
+
+        // Randomly select a phrase
+        const selectedPhrase = fortunePhrases[Math.floor(Math.random() * fortunePhrases.length)];
+        console.log('🎋 Selected fortune:', selectedPhrase);
+
+        // Split phrase into two columns (first 4 chars, last 4 chars)
+        const rightColumn = selectedPhrase.substring(0, 4);  // Characters 0-3
+        const leftColumn = selectedPhrase.substring(5, 9);   // Characters 5-8 (skip comma at index 4)
+
+        // Subtitle: Fortune phrase (2 columns, 4 chars each)
         ctx.font = 'bold 56px SimHei, "Microsoft YaHei", "PingFang SC", sans-serif';
         ctx.fillStyle = '#FFD700';
         ctx.textAlign = 'center';
@@ -189,19 +211,17 @@ export class FortuneScroll {
         const textGroupHeight = charSpacing * 3;
         const startY = centerOfSpace - (textGroupHeight / 2);
         
-        // Right column: 这一年会
+        // Right column: First 4 characters
         const rightX = canvas.width / 2 + columnSpacing;
-        ctx.fillText('这', rightX, startY);
-        ctx.fillText('一', rightX, startY + charSpacing);
-        ctx.fillText('年', rightX, startY + charSpacing * 2);
-        ctx.fillText('会', rightX, startY + charSpacing * 3);
+        for (let i = 0; i < rightColumn.length; i++) {
+            ctx.fillText(rightColumn[i], rightX, startY + (charSpacing * i));
+        }
         
-        // Left column: 惊喜连连
+        // Left column: Last 4 characters
         const leftX = canvas.width / 2 - columnSpacing;
-        ctx.fillText('惊', leftX, startY);
-        ctx.fillText('喜', leftX, startY + charSpacing);
-        ctx.fillText('连', leftX, startY + charSpacing * 2);
-        ctx.fillText('连', leftX, startY + charSpacing * 3);
+        for (let i = 0; i < leftColumn.length; i++) {
+            ctx.fillText(leftColumn[i], leftX, startY + (charSpacing * i));
+        }
 
         const texture = new THREE.CanvasTexture(canvas);
         

@@ -156,7 +156,7 @@ export class FortuneScroll {
     createTextMesh() {
         const canvas = document.createElement('canvas');
         canvas.width = 512;
-        canvas.height = 512;
+        canvas.height = 1024;
         const ctx = canvas.getContext('2d');
 
         // Clear canvas
@@ -198,18 +198,17 @@ export class FortuneScroll {
         
         // Calculate center position for both columns
         const columnSpacing = 70;
-        const charSpacing = 60;
+        const charSpacing = 70;
         
-        // Title ends around y=210 (150 + half of font size)
-        // Available space is from 210 to canvas bottom (1024)
-        const spaceTop = 210;
-        const spaceBottom = canvas.height;
-        const centerOfSpace = (spaceTop + spaceBottom) / 2;
+        // Title ends at y=230 for clearer separation
+        const titleBottom = 230;
+        const availableHeight = canvas.height - titleBottom;
         
-        // Text group spans 180px (3 gaps of 60px between 4 chars)
-        // Center text group in available space
+        // Text group spans charSpacing * 3 (3 gaps between 4 chars)
         const textGroupHeight = charSpacing * 3;
-        const startY = centerOfSpace - (textGroupHeight / 2);
+        
+        // Center text group in available space
+        const startY = titleBottom + (availableHeight - textGroupHeight) / 2;
         
         // Right column: First 4 characters
         const rightX = canvas.width / 2 + columnSpacing;
@@ -226,7 +225,7 @@ export class FortuneScroll {
         const texture = new THREE.CanvasTexture(canvas);
         
         // Create text plane
-        const textGeometry = new THREE.PlaneGeometry(200, 200);
+        const textGeometry = new THREE.PlaneGeometry(200, 400);
         const textMaterial = new THREE.MeshBasicMaterial({
             map: texture,
             transparent: true,
@@ -235,7 +234,7 @@ export class FortuneScroll {
         });
 
         this.textMesh = new THREE.Mesh(textGeometry, textMaterial);
-        this.textMesh.position.set(0, 100, 5); // Slightly in front of parchment
+        this.textMesh.position.set(0, 0, 5); // Slightly in front of parchment
         
         this.scrollGroup.add(this.textMesh);
     }

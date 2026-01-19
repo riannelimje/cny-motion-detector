@@ -9,6 +9,7 @@ import { TextToPoints } from './textToPoints.js';
 import { FireworksSystem } from './fireworksSystem.js';
 import { SceneManager } from './sceneManager.js';
 import { ScrollManager } from './scrollManager.js';
+import { MenuManager } from './menuManager.js';
 
 class CNYFireworksApp {
     constructor() {
@@ -17,6 +18,7 @@ class CNYFireworksApp {
         this.fireworksSystem = null;
         this.scrollManager = null;
         this.sceneManager = null;
+        this.menuManager = null;
         
         this.targetPoints = null;
         this.isReady = false;
@@ -69,6 +71,9 @@ class CNYFireworksApp {
 
             // Set up keyboard controls for testing
             this.setupKeyboardControls();
+
+            // Initialize menu manager
+            this.menuManager = new MenuManager();
 
             // Start animation loop
             this.animate();

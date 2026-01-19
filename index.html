@@ -22,6 +22,55 @@
         <div id="gesture-hint">Make a fist, then open your palm to trigger fireworks! 🎆</div>
     </div>
 
+    <!-- Hamburger Menu -->
+    <div id="hamburger-menu">
+        <button id="hamburger-btn" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+
+    <!-- Command Palette Overlay -->
+    <div id="command-palette-overlay" class="hidden">
+        <div class="command-palette">
+            <button id="close-palette-btn" aria-label="Close" class="close-btn">&times;</button>
+            
+            <div class="command-search">
+                <input type="text" id="command-input" class="command-input" placeholder="Search settings..." />
+            </div>
+            
+            <div class="command-list">
+                <div class="command-item" data-action="upload-background">
+                    <div class="command-item-left">
+                        <h4>Upload Background</h4>
+                        <p>Change background image</p>
+                    </div>
+                    <span class="command-shortcut">⌘B</span>
+                </div>
+                
+                <div class="command-item" data-action="reset-background">
+                    <div class="command-item-left">
+                        <h4>Reset Background</h4>
+                        <p>Restore default configuration</p>
+                    </div>
+                    <span class="command-shortcut">⌘R</span>
+                </div>
+                
+                <div class="command-item" data-action="view-source">
+                    <div class="command-item-left">
+                        <h4>View Source Code</h4>
+                        <p>Open GitHub repository</p>
+                    </div>
+                    <span class="command-shortcut">⌘G</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hidden file input for background upload -->
+        <input type="file" id="bg-upload" accept="image/*" style="display: none;" />
+    </div>
+
     <!-- Loading Indicator -->
     <div id="loading-screen">
         <div class="loader"></div>

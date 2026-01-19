@@ -17,7 +17,12 @@ export class TextToPoints {
      * @returns {Array} Array of {x, y, z, color} points
      */
     convertToPoints(text = CONFIG.TEXT.CONTENT) {
-        const fontSize = CONFIG.TEXT.FONT_SIZE;
+        // Use mobile settings on smaller screens
+        const isMobile = window.innerWidth <= 768;
+        const fontSize = isMobile ? CONFIG.TEXT.MOBILE_FONT_SIZE : CONFIG.TEXT.FONT_SIZE;
+        const spacingX = isMobile ? CONFIG.TEXT.MOBILE_SPACING_X : CONFIG.TEXT.SPACING_X;
+        const positionY = isMobile ? CONFIG.TEXT.MOBILE_POSITION_Y : CONFIG.TEXT.POSITION_Y;
+        
         const characters = text.split('');
         const allPoints = [];
 
@@ -55,8 +60,8 @@ export class TextToPoints {
                         // Convert 2D canvas coords to 3D world coords
                         // Center each character horizontally
                         const worldX = (x - this.canvas.width / 2) + 
-                                      (charIndex - (characters.length - 1) / 2) * CONFIG.TEXT.SPACING_X;
-                        const worldY = -(y - this.canvas.height / 2) + CONFIG.TEXT.POSITION_Y;
+                                      (charIndex - (characters.length - 1) / 2) * spacingX;
+                        const worldY = -(y - this.canvas.height / 2) + positionY;
                         // Add z-depth variation for layering
                         const worldZ = CONFIG.TEXT.POSITION_Z + (Math.random() - 0.5) * CONFIG.TEXT.Z_VARIATION;
                         

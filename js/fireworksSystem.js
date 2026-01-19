@@ -218,8 +218,8 @@ export class FireworksSystem {
             particle.maxLife = 0.3; // Quick explosion
             particle.position.copy(particle.target);
             
-            // Create explosion burst
-            this.createExplosion(particle);
+            // Skip explosion burst - just flash in place
+            // this.createExplosion(particle);
             return;
         }
 

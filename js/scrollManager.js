@@ -24,11 +24,15 @@ export class ScrollManager {
         // Get unique fortunes for each scroll
         const fortunes = this.getUniqueRandomFortunes(3);
         
+        // Use mobile positions on smaller screens
+        const isMobile = window.innerWidth <= 768;
+        const positionSet = isMobile ? CONFIG.SCROLL.MOBILE_POSITIONS : CONFIG.SCROLL.POSITIONS;
+        
         // Create scrolls at left, center, right positions
         const positions = [
-            CONFIG.SCROLL.POSITIONS.LEFT,
-            CONFIG.SCROLL.POSITIONS.CENTER,
-            CONFIG.SCROLL.POSITIONS.RIGHT
+            positionSet.LEFT,
+            positionSet.CENTER,
+            positionSet.RIGHT
         ];
         
         positions.forEach((position, index) => {

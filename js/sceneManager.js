@@ -37,8 +37,16 @@ export class SceneManager {
             CONFIG.SCENE.NEAR,
             CONFIG.SCENE.FAR
         );
-        this.camera.position.set(0, 400, 800);
-        this.camera.lookAt(0, 450, 0);
+        
+        // Adjust camera for mobile vs desktop
+        const isMobile = window.innerWidth <= 768;
+        if (isMobile) {
+            this.camera.position.set(0, 300, 1400); // Much further back and lower for mobile
+            this.camera.lookAt(0, 300, 0);
+        } else {
+            this.camera.position.set(0, 400, 800);
+            this.camera.lookAt(0, 450, 0);
+        }
 
         // Create renderer
         this.renderer = new THREE.WebGLRenderer({
@@ -204,6 +212,16 @@ export class SceneManager {
         this.camera.updateProjectionMatrix();
 
         this.renderer.setSize(width, height);
+        
+        // Adjust camera position for mobile vs desktop
+        const isMobile = width <= 768;
+        if (isMobile) {
+            this.camera.position.set(0, 300, 1400);
+            this.camera.lookAt(0, 300, 0);
+        } else {
+            this.camera.position.set(0, 400, 800);
+            this.camera.lookAt(0, 450, 0);
+        }
     }
 
     /**

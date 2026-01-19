@@ -116,16 +116,31 @@ class CNYFireworksApp {
             }
         });
 
-        // Mouse click controls
+        // Mouse and touch controls
         const canvas = document.querySelector('canvas');
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
-        canvas.addEventListener('click', (event) => {
-            // Calculate mouse position in normalized device coordinates (-1 to +1)
+        const handleInteraction = (event) => {
+            // Prevent default to avoid double-firing on touch devices
+            event.preventDefault();
+            
+            // Get coordinates from either mouse or touch event
             const rect = canvas.getBoundingClientRect();
-            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            let clientX, clientY;
+            
+            if (event.type.startsWith('touch')) {
+                const touch = event.touches[0] || event.changedTouches[0];
+                clientX = touch.clientX;
+                clientY = touch.clientY;
+            } else {
+                clientX = event.clientX;
+                clientY = event.clientY;
+            }
+            
+            // Calculate position in normalized device coordinates (-1 to +1)
+            mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
 
             // Update raycaster
             raycaster.setFromCamera(mouse, this.sceneManager.getCamera());
@@ -134,7 +149,8 @@ class CNYFireworksApp {
             const scrollIndex = this.scrollManager.getScrollAtPosition(raycaster);
             
             if (scrollIndex !== null) {
-                console.log(`🖱️ Clicked scroll ${scrollIndex + 1}`);
+                const inputType = event.type.startsWith('touch') ? '👆' : '🖱️';
+                console.log(`${inputType} Tapped scroll ${scrollIndex + 1}`);
                 
                 // If clicking already selected scroll, confirm it
                 if (this.scrollManager.selectedScrollIndex === scrollIndex) {
@@ -144,9 +160,13 @@ class CNYFireworksApp {
                     this.scrollManager.selectScroll(scrollIndex);
                 }
             }
-        });
+        };
 
-        console.log('⌨️  Controls enabled: Click scrolls or press 1/2/3 to select, SPACE to confirm, R to reset');
+        // Add both click and touch event listeners
+        canvas.addEventListener('click', handleInteraction);
+        canvas.addEventListener('touchend', handleInteraction);
+
+        console.log('⌨️  Controls enabled: Tap/click scrolls or press 1/2/3 to select, SPACE to confirm, R to reset');
     }
 
     /**

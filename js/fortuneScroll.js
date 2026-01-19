@@ -47,6 +47,16 @@ export class FortuneScroll {
         this.scrollGroup.position.set(this.position.x, this.position.y, this.position.z);
         this.scrollGroup.rotation.x = 0.1;
         
+        // Scale down on mobile
+        const isMobile = window.innerWidth <= 768;
+        if (isMobile && CONFIG.SCROLL.MOBILE_SCALE) {
+            this.scrollGroup.scale.set(
+                CONFIG.SCROLL.MOBILE_SCALE,
+                CONFIG.SCROLL.MOBILE_SCALE,
+                CONFIG.SCROLL.MOBILE_SCALE
+            );
+        }
+        
         // Set rolled-up appearance
         this.parchmentMesh.scale.y = CONFIG.SCROLL.IDLE_PARCHMENT_SCALE;
         this.textMesh.material.opacity = 0;

@@ -26,9 +26,14 @@ export const CONFIG = {
         FONT_FAMILY: 'SimHei, "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif',
         SAMPLE_DENSITY: 0.3,          // Lower = more particles (0-1)
         SPACING_X: 250,               // Horizontal spacing between characters
-        POSITION_Y: 500,              // Height in 3D space (raised to upper 40%)
+        POSITION_Y: 450,              // Height in 3D space (centered for desktop)
         POSITION_Z: 0,                // Base z-depth (particles vary around this)
-        Z_VARIATION: 30               // Random z-depth variation for layering
+        Z_VARIATION: 30,              // Random z-depth variation for layering
+        
+        // Mobile adjustments
+        MOBILE_FONT_SIZE: 90,         // Much smaller text for mobile
+        MOBILE_SPACING_X: 120,        // Very tight spacing on mobile
+        MOBILE_POSITION_Y: 300        // Much lower position for mobile
     },
 
     // Fireworks Animation
@@ -96,7 +101,15 @@ export const CONFIG = {
             LEFT: { x: -350, y: 400, z: 200 },
             CENTER: { x: 0, y: 400, z: 200 },
             RIGHT: { x: 350, y: 400, z: 200 }
-        }
+        },
+        
+        MOBILE_POSITIONS: {
+            LEFT: { x: -260, y: 280, z: 350 },
+            CENTER: { x: 0, y: 280, z: 350 },
+            RIGHT: { x: 260, y: 280, z: 350 }
+        },
+        
+        MOBILE_SCALE: 0.7  // Scale scrolls down to 70% on mobile
     },
 
     // Performance Settings

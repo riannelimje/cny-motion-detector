@@ -159,6 +159,23 @@ export class ScrollManager {
     }
 
     /**
+     * Hide all scrolls without reinitializing (for fireworks)
+     */
+    hideAll() {
+        console.log('🎋 Hiding all scrolls...');
+        
+        // Remove all existing scrolls from scene
+        this.scrolls.forEach(scroll => {
+            scroll.hide();
+        });
+        
+        this.scrolls = [];
+        this.selectedScrollIndex = null;
+        this.isAnimating = false;
+        this.state = 'IDLE';
+    }
+
+    /**
      * Reset all scrolls to initial state
      */
     reset() {
@@ -185,14 +202,13 @@ export class ScrollManager {
             scroll.update(deltaTime);
         });
         
-        // Check if selected scroll finished displaying
+        // Check if selected scroll finished displaying and clean up
         if (this.state === 'DISPLAYED') {
             const selectedScroll = this.scrolls[this.selectedScrollIndex];
-            if (selectedScroll && !selectedScroll.isAnimating) {
-                // Auto-reset after display completes
-                setTimeout(() => {
-                    this.reset();
-                }, 1000);
+            if (selectedScroll && selectedScroll.state === 'HIDDEN') {
+                // Clean up all scrolls after selected one fades out completely
+                console.log('🎋 Scroll display complete, cleaning up...');
+                this.hideAll();
             }
         }
         

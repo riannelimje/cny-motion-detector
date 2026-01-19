@@ -117,7 +117,9 @@ export class FortuneScroll {
         const rodMaterial = new THREE.MeshStandardMaterial({
             color: 0x4A2511,
             roughness: 0.8,
-            metalness: 0.1
+            metalness: 0.1,
+            transparent: true,
+            opacity: 1.0
         });
 
         // Top rod
@@ -137,17 +139,19 @@ export class FortuneScroll {
         const endMaterial = new THREE.MeshStandardMaterial({
             color: 0x8B4513,
             roughness: 0.6,
-            metalness: 0.2
+            metalness: 0.2,
+            transparent: true,
+            opacity: 1.0
         });
 
         // Top rod ends
-        const topLeftEnd = new THREE.Mesh(endGeometry, endMaterial);
-        topLeftEnd.position.set(-130, 200, 0);
-        this.scrollGroup.add(topLeftEnd);
+        this.topLeftEnd = new THREE.Mesh(endGeometry, endMaterial);
+        this.topLeftEnd.position.set(-130, 200, 0);
+        this.scrollGroup.add(this.topLeftEnd);
 
-        const topRightEnd = new THREE.Mesh(endGeometry, endMaterial);
-        topRightEnd.position.set(130, 200, 0);
-        this.scrollGroup.add(topRightEnd);
+        this.topRightEnd = new THREE.Mesh(endGeometry, endMaterial);
+        this.topRightEnd.position.set(130, 200, 0);
+        this.scrollGroup.add(this.topRightEnd);
     }
 
     /**
@@ -444,6 +448,24 @@ export class FortuneScroll {
         if (this.textMesh && this.textMesh.material) {
             this.textMesh.material.opacity -= fadeSpeed;
         }
+        
+        // Fade out rods at the same rate
+        if (this.topRod && this.topRod.material) {
+            this.topRod.material.opacity -= fadeSpeed;
+        }
+        
+        if (this.bottomRod && this.bottomRod.material) {
+            this.bottomRod.material.opacity -= fadeSpeed;
+        }
+        
+        // Fade out rod ends
+        if (this.topLeftEnd && this.topLeftEnd.material) {
+            this.topLeftEnd.material.opacity -= fadeSpeed;
+        }
+        
+        if (this.topRightEnd && this.topRightEnd.material) {
+            this.topRightEnd.material.opacity -= fadeSpeed;
+        }
 
         if (this.parchmentMesh.material.opacity <= 0) {
             this.isAnimating = false;
@@ -462,6 +484,23 @@ export class FortuneScroll {
         
         if (this.parchmentMesh && this.parchmentMesh.material) {
             this.parchmentMesh.material.opacity = opacity;
+        }
+        
+        // Fade rods too
+        if (this.topRod && this.topRod.material) {
+            this.topRod.material.opacity = opacity;
+        }
+        
+        if (this.bottomRod && this.bottomRod.material) {
+            this.bottomRod.material.opacity = opacity;
+        }
+        
+        if (this.topLeftEnd && this.topLeftEnd.material) {
+            this.topLeftEnd.material.opacity = opacity;
+        }
+        
+        if (this.topRightEnd && this.topRightEnd.material) {
+            this.topRightEnd.material.opacity = opacity;
         }
         
         // Move sideways slightly

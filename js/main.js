@@ -163,6 +163,12 @@ class CNYFireworksApp {
         console.log('🎆 LAUNCHING FIREWORKS!');
         this.updateStatus('🎆 新年快乐! Happy Chinese New Year!');
 
+        // Hide any existing scrolls before fireworks
+        if (this.scrollManager.scrolls.length > 0) {
+            console.log('🎋 Hiding scrolls for fireworks...');
+            this.scrollManager.hideAll();
+        }
+
         // Add slight jitter for organic feel
         const jitteredPoints = this.textConverter.jitterPoints(this.targetPoints, 3);
 
@@ -214,12 +220,22 @@ class CNYFireworksApp {
             console.log(`Gesture state: ${state} ${emoji}`);
         }
 
-        // Update hint based on state
+        // Update hint based on state and scroll status
         const hintElement = document.getElementById('gesture-hint');
+        const hasScrolls = this.scrollManager.scrolls.length > 0;
+        
         if (state === 'FIST') {
-            hintElement.textContent = '✊ Fist detected - open your palm to trigger! 🖐️';
+            if (hasScrolls) {
+                hintElement.textContent = '✊ Fist detected - open palm for new fortune! 🎆';
+            } else {
+                hintElement.textContent = '✊ Fist detected - open your palm to trigger! 🖐️';
+            }
         } else if (state === 'OPEN') {
-            hintElement.textContent = '🖐️ Palm open - close to fist to reset ✊';
+            if (hasScrolls) {
+                hintElement.textContent = '🖐️ Palm open - close to fist for fireworks & new scrolls ✊';
+            } else {
+                hintElement.textContent = '🖐️ Palm open - close to fist to reset ✊';
+            }
         } else {
             hintElement.textContent = 'Show your hand to the camera 👋';
         }

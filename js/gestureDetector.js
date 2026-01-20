@@ -158,7 +158,7 @@ export class GestureDetector {
      *   * 2 fingers → scrollIndex 1 (center scroll)
      *   * 3 fingers → scrollIndex 2 (right scroll)
      * - Applies 500ms debounce to prevent repeated triggers
-     * - Only triggers callback when finger count CHANGES
+     * - Automatically confirms selection (no fist gesture needed)
      * 
      * @param {number} fingerCount - Number of extended fingers (0-5)
      */
@@ -183,7 +183,7 @@ export class GestureDetector {
                 // Notify callback if finger count is valid (1, 2, or 3)
                 if (validFingerCount > 0 && this.onFingerCountChange) {
                     const scrollIndex = validFingerCount - 1; // Convert 1,2,3 to 0,1,2
-                    console.log(`👆 ${validFingerCount} finger(s) detected → Scroll ${scrollIndex + 1}`);
+                    console.log(`👆 ${validFingerCount} finger(s) detected → Auto-selecting Scroll ${scrollIndex + 1}`);
                     this.onFingerCountChange(scrollIndex);
                 }
             }

@@ -14,7 +14,7 @@ export const CONFIG = {
 
     // Gesture Detection
     GESTURE: {
-        FIST_THRESHOLD: 3,           // Fingers extended to be considered "open palm"
+        FIST_THRESHOLD: 4,           // Fingers extended to be considered "open palm" (changed to 4 to avoid conflict with scroll selection)
         COOLDOWN_MS: 1000,           // Minimum time between triggers (ms)
         FINGER_CURL_THRESHOLD: 0.6   // How curled a finger needs to be (0-1)
     },

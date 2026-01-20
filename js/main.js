@@ -204,24 +204,29 @@ class CNYFireworksApp {
 
     /**
      * Handle finger count change for scroll selection
+     * Auto-confirms selection when showing 1, 2, or 3 fingers
      * @param {number} scrollIndex - Index of scroll to select (0, 1, or 2)
      */
     onFingerCountChange(scrollIndex) {
         // Only respond to finger count when scrolls are in selection mode
         if (this.scrollManager.state === 'IDLE' || this.scrollManager.state === 'SELECTING') {
             this.scrollManager.selectScroll(scrollIndex);
+            // Auto-confirm after a short delay to show hover effect
+            setTimeout(() => {
+                if (this.scrollManager.selectedScrollIndex === scrollIndex) {
+                    this.scrollManager.confirmSelection();
+                }
+            }, 800);
         }
     }
 
     /**
-     * Handle fist gesture (used for confirming scroll selection)
+     * Handle fist gesture (used for fireworks trigger only)
+     * No longer used for scroll selection confirmation
      */
     onFistGesture() {
-        // Use fist gesture to confirm selection when in selecting mode
-        if (this.scrollManager.state === 'SELECTING') {
-            console.log('✊ Fist gesture → Confirming selection');
-            this.scrollManager.confirmSelection();
-        }
+        // Fist gesture is now only used for fireworks (via fist-to-open palm)
+        // Scroll selection is auto-confirmed when showing fingers
     }
 
     /**
@@ -286,7 +291,7 @@ class CNYFireworksApp {
                 this.fireworksLaunched = false;
                 
                 // Show selection instructions
-                this.updateStatus('🎋 Show 1-3 fingers to select, make a fist ✊ to confirm');
+                this.updateStatus('Show 1, 2 or 3 fingers to select correspondingly');
             }, CONFIG.SCROLL.DELAY_AFTER_FIREWORKS * 1000);
         }
 

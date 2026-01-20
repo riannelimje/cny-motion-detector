@@ -49,6 +49,7 @@ body * {
     z-index: 101; /* Above webcam */
     display: block;
     transform: scaleX(-1); /* Mirror flip to match webcam */
+    object-fit: contain; /* Maintain aspect ratio without stretching */
 }
 
 /* Three.js Scene Container */

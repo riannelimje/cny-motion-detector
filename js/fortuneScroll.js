@@ -14,6 +14,7 @@ export class FortuneScroll {
         this.scrollGroup = null;
         this.parchmentMesh = null;
         this.textMesh = null;
+        this.numberLabel = null;
         this.isAnimating = false;
         this.animationProgress = 0;
         
@@ -42,6 +43,7 @@ export class FortuneScroll {
         this.createWoodenRods();
         this.createParchment();
         this.createTextMesh();
+        this.createNumberLabel();
         
         // Position scroll
         this.scrollGroup.position.set(this.position.x, this.position.y, this.position.z);
@@ -306,6 +308,50 @@ export class FortuneScroll {
     }
 
     /**
+     * Create number label indicator above scroll
+     */
+    createNumberLabel() {
+        // Create canvas for number circle
+        const canvas = document.createElement('canvas');
+        canvas.width = 128;
+        canvas.height = 128;
+        const ctx = canvas.getContext('2d');
+
+        // Draw circle background
+        ctx.fillStyle = 'rgba(255, 215, 0, 0.9)'; // Gold with slight transparency
+        ctx.beginPath();
+        ctx.arc(64, 64, 60, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Draw border
+        ctx.strokeStyle = '#FF0000'; // Red border
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        // Draw number
+        ctx.fillStyle = '#8B0000'; // Dark red text
+        ctx.font = 'bold 72px Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText((this.scrollIndex + 1).toString(), 64, 64);
+
+        const texture = new THREE.CanvasTexture(canvas);
+        
+        // Create sprite for number label (always faces camera)
+        const spriteMaterial = new THREE.SpriteMaterial({
+            map: texture,
+            transparent: true,
+            opacity: 1.0
+        });
+
+        this.numberLabel = new THREE.Sprite(spriteMaterial);
+        this.numberLabel.scale.set(60, 60, 1); // Size of the sprite
+        this.numberLabel.position.set(0, 270, 0); // Position above the scroll
+        
+        this.scrollGroup.add(this.numberLabel);
+    }
+
+    /**
      * Update animation (called every frame)
      */
     update(deltaTime) {
@@ -459,6 +505,11 @@ export class FortuneScroll {
             this.textMesh.material.opacity -= fadeSpeed;
         }
         
+        // Fade out number label
+        if (this.numberLabel && this.numberLabel.material) {
+            this.numberLabel.material.opacity -= fadeSpeed;
+        }
+        
         // Fade out rods at the same rate
         if (this.topRod && this.topRod.material) {
             this.topRod.material.opacity -= fadeSpeed;
@@ -494,6 +545,11 @@ export class FortuneScroll {
         
         if (this.parchmentMesh && this.parchmentMesh.material) {
             this.parchmentMesh.material.opacity = opacity;
+        }
+        
+        // Fade number label
+        if (this.numberLabel && this.numberLabel.material) {
+            this.numberLabel.material.opacity = opacity;
         }
         
         // Fade rods too

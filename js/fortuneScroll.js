@@ -127,7 +127,7 @@ export class FortuneScroll {
     createWoodenRods() {
         const rodGeometry = new THREE.CylinderGeometry(8, 8, 250, 16);
         const rodMaterial = new THREE.MeshStandardMaterial({
-            color: 0x4A2511,
+            color: 0xEE4B2B,
             roughness: 0.8,
             metalness: 0.1,
             transparent: true,
@@ -149,7 +149,7 @@ export class FortuneScroll {
         // Add decorative ends to rods
         const endGeometry = new THREE.SphereGeometry(10, 16, 16);
         const endMaterial = new THREE.MeshStandardMaterial({
-            color: 0x8B4513,
+            color: 0xD03011,
             roughness: 0.6,
             metalness: 0.2,
             transparent: true,

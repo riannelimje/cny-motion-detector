@@ -18,8 +18,7 @@
     "webgl",
     "computer-vision"
   ],
-  "author": "Your Name",
-  "license": "MIT",
+  "author": "riannelimje",
   "devDependencies": {
     "vite": "^5.0.0"
   },

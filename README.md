@@ -13,11 +13,12 @@ An immersive Chinese New Year web experience that combines **hand gesture detect
 ### 🎋 Interactive Fortune Scrolls
 - **Three-Scroll Selection** - Choose from left, center, or right scroll
 - **Multiple Input Methods**:
-  - 👆 **Gesture Control**: Show 1-3 fingers to select, fist to confirm
+  - 👆 **Gesture Control**: Show 1-3 fingers to auto-select (no confirmation needed)
   - 🖱️ **Mouse/Touch**: Tap scrolls directly on any device
   - ⌨️ **Keyboard**: Press 1/2/3 to select, SPACE to confirm
 - **10 Unique Fortunes** - Random auspicious Chinese phrases
 - **Smooth Animations** - Unrolling scrolls with floating effects
+- **Improved Finger Detection** - Accurate finger counting with reduced false positives
 
 ### 🎨 Modern UI/UX
 - **Command Palette Menu** - Professional settings interface
@@ -65,8 +66,8 @@ Open `index.html` in any modern browser - works offline!
 
 1. **Allow camera access** when prompted
 2. **Trigger fireworks**: Fist ✊ → Open palm 🖐️
-3. **Select scroll**: Show 1-3 fingers OR tap scroll directly
-4. **Confirm**: Make fist ✊ OR tap scroll again
+3. **Select scroll**: Show 1-3 fingers (auto-selects) OR tap scroll directly
+4. **New fortune**: Repeat fist-open gesture for new scrolls
 5. **Settings**: Tap hamburger menu (⋮) for background upload
 
 ### Gesture Reference
@@ -74,8 +75,7 @@ Open `index.html` in any modern browser - works offline!
 | Gesture | Desktop | Mobile | Action |
 |---------|---------|--------|--------|
 | ✊ → 🖐️ | Trigger | Trigger | Launch fireworks & scrolls |
-| 👆 / ✌️ / 🤟 | - | Select | Choose left/center/right scroll |
-| ✊ | - | Confirm | Confirm selected scroll |
+| 👆 / ✌️ / 🤟 | - | Auto-select | Instantly choose left/center/right scroll |
 | 🖱️ Click | Select | Tap | Select/confirm scroll |
 | ⌨️ 1/2/3 | Select | - | Choose scroll by number |
 | ⌨️ SPACE | Confirm | - | Confirm selection |
@@ -91,7 +91,7 @@ cny-motion-detector/
 ├── js/
 │   ├── main.js              # App orchestrator with multi-input handling
 │   ├── config.js            # Mobile/desktop configs
-│   ├── gestureDetector.js   # MediaPipe + finger counting
+│   ├── gestureDetector.js   # MediaPipe + improved finger counting with MCP validation
 │   ├── textToPoints.js      # Text-to-particle converter
 │   ├── fireworksSystem.js   # Particle animation engine
 │   ├── sceneManager.js      # Three.js scene + adaptive camera
@@ -264,6 +264,8 @@ CONFIG.DEBUG.LOG_GESTURES = true // Enable gesture logging
 - **Distance**: Position hand 1-2 feet from camera
 - **Background**: Plain background works best
 - **Debounce**: 500ms delay between finger count changes
+- **Finger Detection**: Uses both PIP and MCP joint validation for accuracy
+- **Thresholds**: Balanced thresholds prevent false positives (e.g., 1 finger detected as 2)
 
 ### Low Performance
 - Close other browser tabs
@@ -296,11 +298,7 @@ Mobile users can "Add to Home Screen" for:
 - Faster loading
 - Offline support (when implemented)
 
-## 📝 License
-
-MIT License - Free to use and modify!
-
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - **MediaPipe by Google** - Hand tracking AI
 - **Three.js Community** - 3D graphics library

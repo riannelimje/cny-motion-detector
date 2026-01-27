@@ -253,29 +253,46 @@ export class GestureDetector {
     countExtendedFingers(landmarks) {
         let extendedCount = 0;
 
-        // Finger indices: [tip, pip (middle joint)]
+        // Finger indices: [tip, pip (middle joint), mcp (base joint)]
         const fingers = [
-            [4, 3],   // Thumb (use X coordinate as it moves horizontally)
-            [8, 6],   // Index
-            [12, 10], // Middle
-            [16, 14], // Ring
-            [20, 18]  // Pinky
+            [4, 3, 2],   // Thumb
+            [8, 6, 5],   // Index
+            [12, 10, 9], // Middle
+            [16, 14, 13], // Ring
+            [20, 18, 17]  // Pinky
         ];
+
+        // Get wrist position for reference
+        const wrist = landmarks[0];
 
         // Thumb: check horizontal extension (X-axis)
         const thumbTip = landmarks[fingers[0][0]];
         const thumbPip = landmarks[fingers[0][1]];
-        const thumbExtended = Math.abs(thumbTip.x - thumbPip.x) > 0.05;
+        const thumbMcp = landmarks[fingers[0][2]];
+        
+        // Check if thumb tip is far from palm AND extended beyond middle joint
+        const thumbDistanceFromWrist = Math.sqrt(
+            Math.pow(thumbTip.x - wrist.x, 2) + 
+            Math.pow(thumbTip.y - wrist.y, 2)
+        );
+        const thumbExtended = Math.abs(thumbTip.x - thumbPip.x) > 0.05 && 
+                             thumbDistanceFromWrist > 0.12;
         if (thumbExtended) extendedCount++;
 
-        // Other fingers: check vertical extension (Y-axis)
+        // Other fingers: check vertical extension with balanced criteria
         for (let i = 1; i < fingers.length; i++) {
-            const [tipIdx, pipIdx] = fingers[i];
+            const [tipIdx, pipIdx, mcpIdx] = fingers[i];
             const tip = landmarks[tipIdx];
             const pip = landmarks[pipIdx];
+            const mcp = landmarks[mcpIdx];
             
-            // Fingertip is above (lower Y value) the middle joint
-            if (tip.y < pip.y - 0.02) {
+            // Finger is extended if:
+            // 1. Tip is above middle joint with moderate threshold
+            // 2. Tip is above base joint (confirms extension)
+            const tipAbovePip = tip.y < pip.y - 0.03; // Balanced threshold
+            const tipAboveMcp = tip.y < mcp.y - 0.01;
+            
+            if (tipAbovePip && tipAboveMcp) {
                 extendedCount++;
             }
         }

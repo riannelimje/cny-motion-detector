@@ -385,7 +385,7 @@ body * {
     /* Gesture canvas - smaller and repositioned for better mobile view */
     #gesture-canvas {
         width: 160px;
-        height: 120px;
+        height: 90px;
         bottom: 80px;
         left: 10px;
         border-width: 2px;

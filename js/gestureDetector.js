@@ -37,55 +37,62 @@ export class GestureDetector {
      * Initialize MediaPipe Hands and webcam
      */
     async init() {
-        try {
-            // Get video element
-            this.videoElement = document.getElementById('webcam');
-            this.canvasElement = document.getElementById('gesture-canvas');
-            this.canvasCtx = this.canvasElement.getContext('2d');
+    try {
+        // Get video element
+        this.videoElement = document.getElementById('webcam');
+        this.canvasElement = document.getElementById('gesture-canvas');
+        this.canvasCtx = this.canvasElement.getContext('2d');
 
-            // Configure canvas
-            this.canvasElement.width = 640;
-            this.canvasElement.height = 480;
+        // Detect if mobile device
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        
+        // Use 16:9 aspect ratio for mobile, 4:3 for desktop
+        const videoWidth = isMobile ? 640 : 640;
+        const videoHeight = isMobile ? 360 : 480; // 16:9 vs 4:3
 
-            // Initialize MediaPipe Hands
-            this.hands = new Hands({
-                locateFile: (file) => {
-                    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-                }
-            });
+        // Configure canvas to match video aspect ratio
+        this.canvasElement.width = videoWidth;
+        this.canvasElement.height = videoHeight;
 
-            this.hands.setOptions({
-                maxNumHands: CONFIG.MEDIAPIPE.MAX_NUM_HANDS,
-                modelComplexity: CONFIG.MEDIAPIPE.MODEL_COMPLEXITY,
-                minDetectionConfidence: CONFIG.MEDIAPIPE.MIN_DETECTION_CONFIDENCE,
-                minTrackingConfidence: CONFIG.MEDIAPIPE.MIN_TRACKING_CONFIDENCE
-            });
-
-            // Set up results callback
-            this.hands.onResults((results) => this.onResults(results));
-
-            // Initialize camera
-            this.camera = new Camera(this.videoElement, {
-                onFrame: async () => {
-                    await this.hands.send({ image: this.videoElement });
-                },
-                width: 640,
-                height: 480
-            });
-
-            await this.camera.start();
-            this.isReady = true;
-
-            if (CONFIG.DEBUG.LOG_GESTURES) {
-                console.log('✅ GestureDetector initialized');
+        // Initialize MediaPipe Hands
+        this.hands = new Hands({
+            locateFile: (file) => {
+                return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
             }
+        });
 
-            return true;
-        } catch (error) {
-            console.error('❌ Failed to initialize GestureDetector:', error);
-            return false;
+        this.hands.setOptions({
+            maxNumHands: CONFIG.MEDIAPIPE.MAX_NUM_HANDS,
+            modelComplexity: CONFIG.MEDIAPIPE.MODEL_COMPLEXITY,
+            minDetectionConfidence: CONFIG.MEDIAPIPE.MIN_DETECTION_CONFIDENCE,
+            minTrackingConfidence: CONFIG.MEDIAPIPE.MIN_TRACKING_CONFIDENCE
+        });
+
+        // Set up results callback
+        this.hands.onResults((results) => this.onResults(results));
+
+        // Initialize camera with matching dimensions
+        this.camera = new Camera(this.videoElement, {
+            onFrame: async () => {
+                await this.hands.send({ image: this.videoElement });
+            },
+            width: videoWidth,
+            height: videoHeight
+        });
+
+        await this.camera.start();
+        this.isReady = true;
+
+        if (CONFIG.DEBUG.LOG_GESTURES) {
+            console.log(`✅ GestureDetector initialized (${videoWidth}×${videoHeight})`);
         }
+
+        return true;
+    } catch (error) {
+        console.error('❌ Failed to initialize GestureDetector:', error);
+        return false;
     }
+}
 
     /**
      * Process MediaPipe hand tracking results

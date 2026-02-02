@@ -401,19 +401,20 @@ body * {
     }
     /* Gesture canvas - smaller and repositioned for better mobile view */
     #gesture-canvas {
-        width: 160px;
-        height: 90px;
+        width: min(25vw, 200px);
+        height: calc(min(25vw, 200px) * 3 / 4); /* Maintain 4:3 aspect ratio */
         max-width: 100vw;
         max-height: 40vh;
         bottom: 80px;
         left: 10px;
         border-width: 2px;
         border-radius: 8px;
-        object-fit: contain;
+        object-fit: cover; /* Cover to fill the container properly */
         box-sizing: border-box;
         padding: 0;
-        background: none;
+        background: rgba(0, 0, 0, 0.3); /* Subtle background to show canvas bounds */
         box-shadow: none;
+        overflow: hidden; /* Ensure content doesn't overflow the border */
     }
     
     /* Status overlay - better positioning for mobile */
@@ -522,10 +523,12 @@ body * {
 /* Extra small devices (phones in portrait) */
 @media (max-width: 480px) {
     #gesture-canvas {
-        width: 140px;
-        height: 105px;
+        width: min(30vw, 160px);
+        height: calc(min(30vw, 160px) * 3 / 4); /* Maintain 4:3 aspect ratio */
         bottom: 70px;
         left: 8px;
+        object-fit: cover;
+        overflow: hidden;
     }
     
     #status-text {
@@ -572,10 +575,12 @@ body * {
 /* Landscape orientation on mobile */
 @media (max-width: 896px) and (orientation: landscape) {
     #gesture-canvas {
-        width: 120px;
-        height: 90px;
+        width: min(20vw, 140px);
+        height: calc(min(20vw, 140px) * 3 / 4); /* Maintain 4:3 aspect ratio */
         bottom: 10px;
         left: 10px;
+        object-fit: cover;
+        overflow: hidden;
     }
     
     #status-overlay {

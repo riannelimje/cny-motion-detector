@@ -43,23 +43,10 @@ export class GestureDetector {
         this.canvasElement = document.getElementById('gesture-canvas');
         this.canvasCtx = this.canvasElement.getContext('2d');
 
-        // Detect if mobile device and orientation
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        const isPortrait = window.matchMedia("(orientation: portrait)").matches;
-        
-        // Use appropriate aspect ratio based on device and orientation
-        // Mobile portrait: 9:16 (360×640), Mobile landscape: 16:9 (640×360), Desktop: 4:3 (640×480)
-        let videoWidth, videoHeight;
-        if (isMobile && isPortrait) {
-            videoWidth = 360;
-            videoHeight = 640;  // 9:16 portrait
-        } else if (isMobile && !isPortrait) {
-            videoWidth = 640;
-            videoHeight = 360;  // 16:9 landscape
-        } else {
-            videoWidth = 640;
-            videoHeight = 480;  // 4:3 desktop
-        }
+        // Most cameras (mobile and desktop) output at 4:3 aspect ratio
+        // Use standard 640×480 for consistent display
+        const videoWidth = 640;
+        const videoHeight = 480;
 
         // Configure canvas to match video aspect ratio
         this.canvasElement.width = videoWidth;
